@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  server:
+    image: phpswoole/swoole:5.0-php8.1
+    container_name: swoole-chat-server
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8000:8000"
