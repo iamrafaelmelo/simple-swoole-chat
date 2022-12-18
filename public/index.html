@@ -16,13 +16,12 @@
                 <h1 class="text-2xl text-slate-700 font-semibold">Simple Swoole Chat</h1>
             </header>
             <section class="p-8 flex flex-col border border-slate-300 rounded-lg">
-                <div class="mb-6 empty:mb-0" id="messages"></div>
-                <form class="flex flex-col w-full space-y-4" id="form">
-                    <label for="message">
+                <messages class="mb-6 empty:mb-0"></messages>
+                <form class="flex flex-col w-full space-y-4">
+                    <label>
                         <input
                             class="px-3 py-2 w-full border border-slate-300 rounded placeholder-slate-400 placeholder-opacity-80 focus:outline-none focus:ring-4 focus:ring-blue-200 focus:border-blue-600"
                             type="text"
-                            id="message"
                             placeholder="Type here... (Press 'Enter' to send message)"
                             autofocus
                         >

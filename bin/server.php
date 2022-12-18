@@ -41,11 +41,12 @@ $server->on('message', function (Server $server, Frame $frame) {
             continue;
         }
 
-        $data = json_decode($frame->data, true);
-        $data['id'] = $frame->fd;
-        $encode = json_encode($data);
+        $data = json_encode([
+            'id' => $frame->fd,
+            'text' => $frame->data,
+        ]);
 
-        $server->push($connection, $encode);
+        $server->push($connection, $data);
     }
 });
 
