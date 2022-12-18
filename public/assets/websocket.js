@@ -28,4 +28,6 @@ const output = (data) => {
             </p>
         </div>
     `);
+
+    messages.scrollTo(0, messages.scrollHeight);
 };
