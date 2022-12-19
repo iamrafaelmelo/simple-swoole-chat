@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Swoole\Http\Request;
+use Swoole\Http\Response;
 use Swoole\WebSocket\Frame;
 use Swoole\WebSocket\Server;
 
@@ -37,7 +38,7 @@ $server->on('message', function (Server $server, Frame $frame) {
     print("Client: {$frame->fd} \nMessage: {$frame->data} \n");
 
     foreach ($server->connections as $connection) {
-        if ($connection === $frame->fd) {
+        if ($server->isEstablished($connection) && $connection === $frame->fd) {
             continue;
         }
 
@@ -48,6 +49,13 @@ $server->on('message', function (Server $server, Frame $frame) {
 
         $server->push($connection, $data);
     }
+});
+
+$server->on('request', function (Request $request, Response $response) {
+    $response->header('Content-Type', 'application/json');
+    $response->end(json_encode([
+        'message' => 'Hello, world!',
+    ]));
 });
 
 $server->on('close', function (Server $server, int $fd) {
