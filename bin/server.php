@@ -35,17 +35,30 @@ $server->on('open', function (Server $server, Request $request) {
 $server->on('message', function (Server $server, Frame $frame) {
     print("Client: {$frame->fd} | Message: {$frame->data}\n");
 
+    $clientId = $frame->fd;
+    $message = $frame->data;
+
     foreach ($server->connections as $connection) {
-        if ($server->isEstablished($connection) && $connection === $frame->fd) {
+        if ($connection === $clientId) {
             continue;
         }
 
+        if ($message === 'typing...') {
+            $data = json_encode([
+                'id' => $clientId,
+                'text' => "User {$clientId} is typing...",
+            ]);
+
+            return $server->push($connection, $data);
+        }
+
         $data = json_encode([
-            'id' => $frame->fd,
-            'text' => $frame->data,
+            'id' => $clientId,
+            'text' => $message,
         ]);
 
         $server->push($connection, $data);
+
     }
 });
 

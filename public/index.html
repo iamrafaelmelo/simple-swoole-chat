@@ -15,7 +15,7 @@
             <header class="text-center">
                 <h1 class="text-2xl text-slate-700 font-semibold">Simple Swoole Chat</h1>
             </header>
-            <section class="p-8 flex flex-col border border-slate-300 rounded-lg">
+            <section class="p-8 flex flex-col gap-y-2 border border-slate-300 rounded-lg">
                 <messages class="mb-6 h-96 max-h-full overflow-y-auto empty:mb-0 empty:h-0"></messages>
                 <form class="flex flex-col w-full space-y-4">
                     <label>
@@ -27,6 +27,7 @@
                         >
                     </label>
                 </form>
+                <typing class="text-sm text-slate-500"></typing>
             </section>
             <footer class="flex items-center justify-center gap-x-6 text-slate-400">
                 <p>v0.2.0</p>
