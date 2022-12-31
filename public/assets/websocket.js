@@ -8,7 +8,7 @@ let typingTimeout;
 input.addEventListener('keyup', function (event) {
     if (event.code !== 'Enter' || event.code !== 'F5') {
         typingTimeout = setTimeout(function () {
-            webSocket.send('typing...');
+            webSocket.send('typing');
         }, 300);
     }
 });
