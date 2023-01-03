@@ -36,9 +36,9 @@ class App
             throw new RuntimeException('There are no events logged.');
         }
 
-        foreach ($events as $event) {
-            print("[Event]: {$event}\n");
-            call_user_func(new $event(), $this->server, $this->settings);
+        foreach ($events as $name => $handler) {
+            print("[Event]: {$handler}\n");
+            $this->server->on($name, new $handler());
         }
     }
 

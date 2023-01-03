@@ -10,8 +10,6 @@ class OnStart
 {
     public function __invoke(Server $server): void
     {
-        $server->on('start', function (Server $server) {
-            print("Websocket server is listen on http://{$server->host}:{$server->port}\n");
-        });
+        print("Websocket server is listen on http://{$server->host}:{$server->port}\n");
     }
 }

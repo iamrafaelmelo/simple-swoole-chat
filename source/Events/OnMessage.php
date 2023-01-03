@@ -9,33 +9,25 @@ use Swoole\WebSocket\Server;
 
 class OnMessage
 {
-    public function __invoke(Server $server): void
+    public const TYPING_MESSAGE = "{username} is typing...";
+
+    public function __invoke(Server $server, Frame $frame)
     {
-        $server->on('message', function (Server $server, Frame $frame) {
-            $clientId = $frame->fd;
-            $message = $frame->data;
+        $id = $frame->fd;
+        $username = "User {$id}";
+        $messages = [
+            'default' => $frame->data,
+            'typing' =>  str_replace('{username}', $username, self::TYPING_MESSAGE),
+        ];
 
-            foreach ($server->connections as $connection) {
-                if ($connection === $clientId) {
-                    continue;
-                }
-
-                if ($message === 'typing') {
-                    $data = json_encode([
-                        'id' => $clientId,
-                        'text' => "User {$clientId} is typing...",
-                    ]);
-
-                    return $server->push($connection, $data);
-                }
-
-                $data = json_encode([
-                    'id' => $clientId,
-                    'text' => $message,
-                ]);
-
-                return $server->push($connection, $data);
+        foreach ($server->connections as $connection) {
+            if ($connection !== $id) {
+                return $server->push($connection, json_encode([
+                    'id'       => $id,
+                    'username' => $username,
+                    'text'     => $messages['default'] === 'typing' ? $messages['typing'] : $messages['default'],
+                ]));
             }
-        });
+        }
     }
 }

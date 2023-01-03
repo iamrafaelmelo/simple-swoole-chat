@@ -9,10 +9,8 @@ use Swoole\WebSocket\Server;
 
 class OnOpen
 {
-    public function __invoke(Server $server): void
+    public function __invoke(Server $server, Request $request): void
     {
-        $server->on('open', function (Server $server, Request $request) {
-            print("Client connected: {$request->fd}\n");
-        });
+        print("Client connected: {$request->fd}\n");
     }
 }

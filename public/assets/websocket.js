@@ -20,7 +20,7 @@ input.addEventListener('keydown', function () {
 
 webSocket.onmessage = (event) => {
     const data = JSON.parse(event.data);
-    const typingText = `User ${data.id} is typing...`;
+    const typingText = `${data.username} is typing...`;
 
     if (data.text === typingText) {
         typing.textContent = typingText;
@@ -45,7 +45,7 @@ const output = (data) => {
     messages.insertAdjacentHTML('beforeend', `
         <div class="mb-4 w-full text-${data.id ? 'left' : 'right'}">
             <p class="px-2.5 py-1 break-all inline-block border ${data.id ? 'bg-white border-slate-200' : 'bg-green-100 border-green-300'} rounded text-slate-600">
-                <span class="font-medium">${data.id ? `User ${data.id}` : 'Me'}</span>: ${data.text}
+                <span class="font-medium">${data.id ? `${data.username}` : 'Me'}</span>: ${data.text}
             </p>
         </div>
     `);

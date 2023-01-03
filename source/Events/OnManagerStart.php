@@ -10,14 +10,12 @@ class OnManagerStart
 {
     public function __invoke(Server $server, array $settings): void
     {
-        $server->on('managerStart', function(Server $server) use ($settings) {
-            $server->tick($settings['server']['keep_alive'], function () use ($server) {
-                foreach ($server->connections as $id) {
-                    if ($server->isEstablished($id)) {
-                        $server->push($id, 'ping', WEBSOCKET_OPCODE_PING);
-                    }
+        $server->tick($settings['server']['keep_alive'], function () use ($server) {
+            foreach ($server->connections as $id) {
+                if ($server->isEstablished($id)) {
+                    $server->push($id, 'ping', WEBSOCKET_OPCODE_PING);
                 }
-            });
+            }
         });
     }
 }

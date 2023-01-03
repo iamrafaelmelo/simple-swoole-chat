@@ -8,10 +8,8 @@ use Swoole\WebSocket\Server;
 
 class OnClose
 {
-    public function __invoke(Server $server): void
+    public function __invoke(Server $server, int $fd): void
     {
-        $server->on('close', function (Server $server, int $fd) {
-            print("Client disconnected: {$fd}\n");
-        });
+        print("Client disconnected: {$fd}\n");
     }
 }

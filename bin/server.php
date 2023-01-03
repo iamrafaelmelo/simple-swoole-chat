@@ -15,11 +15,11 @@ $settings = require __DIR__ . '/../config/settings.php';
 
 $app = new App($settings);
 $app->events([
-    OnManagerStart::class,
-    OnStart::class,
-    OnOpen::class,
-    OnMessage::class,
-    OnClose::class,
+    'managerStart' => OnManagerStart::class,
+    'start'        => OnStart::class,
+    'open'         => OnOpen::class,
+    'message'      => OnMessage::class,
+    'close'        => OnClose::class,
 ]);
 
 $app->start();
