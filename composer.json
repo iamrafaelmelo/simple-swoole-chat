@@ -1,7 +1,9 @@
 {
     "require": {
         "php": ">=8.1",
-        "ext-swoole": "*"
+        "ext-swoole": "*",
+        "league/plates": "^3.4",
+        "league/config": "^1.2"
     },
     "require-dev": {
         "swoole/ide-helper": "^5.0"
@@ -15,7 +17,7 @@
         "start": [
             "Composer\\Config::disableProcessTimeout",
             "composer dump-autoload -o",
-            "php bin/server.php"
+            "php public/index.php"
         ]
     }
 }

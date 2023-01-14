@@ -9,13 +9,13 @@ use Swoole\WebSocket\Server;
 
 class OnMessage
 {
-    public function __invoke(Server $server, Frame $frame)
+    public function __invoke(Server $server, Frame $frame): void
     {
         $id = $frame->fd;
         $data = json_decode($frame->data);
 
         foreach ($server->connections as $connection) {
-            if ($connection !== $id) {
+            if ($server->isEstablished($connection) && $connection !== $id) {
                 $server->push($connection, json_encode([
                     'id'       => $id,
                     'type'     => $data->type,

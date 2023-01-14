@@ -1,6 +1,13 @@
 ## Simple Swoole Chat
 ![](/.github/images/screenshot.png)
 
+## Requirements
+
+- PHP >= 8.1
+- Composer
+- Docker
+- Make (optional)
+
 ## Installation
 
 ```bash

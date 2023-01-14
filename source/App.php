@@ -4,22 +4,19 @@ declare(strict_types=1);
 
 namespace Chat;
 
-use RuntimeException;
+use InvalidArgumentException;
 use Swoole\WebSocket\Server;
 
 class App
 {
-    public const VERSION = '0.6.0';
+    public const VERSION = '0.7.0';
 
     private Server $server;
-    private array $settings;
 
     public function __construct(array $settings)
     {
-        $this->settings = $settings;
-
-        if (!$this->settings) {
-            throw new RuntimeException('Settings not found.');
+        if (!$settings) {
+            throw new InvalidArgumentException('Settings not found.');
         }
 
         $this->server = new Server(
@@ -28,21 +25,27 @@ class App
             mode: $settings['server']['mode'],
             sock_type: $settings['server']['sock_type']
         );
+
+        $this->server->set($settings['server']['options']);
     }
 
-    public function events(array $events)
+    public function events(array $events): void
     {
         if (!$events) {
-            throw new RuntimeException('There are no events logged.');
+            throw new InvalidArgumentException('There are no events logged.');
         }
 
         foreach ($events as $name => $handler) {
+            if (!class_exists($handler)) {
+                throw new InvalidArgumentException("Event handler class {$handler} not found.");
+            }
+
             print("[Event]: {$handler}\n");
             $this->server->on($name, new $handler());
         }
     }
 
-    public function start()
+    public function start(): void
     {
         $this->server->start();
     }
