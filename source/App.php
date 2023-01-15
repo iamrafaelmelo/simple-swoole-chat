@@ -9,7 +9,7 @@ use Swoole\WebSocket\Server;
 
 class App
 {
-    public const VERSION = '0.7.0';
+    public const VERSION = '0.7.1';
 
     private Server $server;
 
