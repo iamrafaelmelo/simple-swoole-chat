@@ -5,6 +5,8 @@ services:
     image: phpswoole/swoole:5.0-php8.1
     container_name: swoole-chat-server
     working_dir: /var/www/html
+    env_file: .env
+    restart: always
     volumes:
       - .:/var/www/html
     ports:

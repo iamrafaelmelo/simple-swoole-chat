@@ -2,10 +2,15 @@
 
 declare(strict_types=1);
 
+use function DI\env;
+
 return [
+    'app' => [
+        'name' => env('APP_NAME', 'Chat'),
+    ],
     'server' => [
-        'host'       => 'localhost',
-        'port'       => 8000,
+        'host'       => env('APP_HOST', 'localhost'),
+        'port'       => env('APP_PORT', 9501),
         'mode'       => SWOOLE_BASE,
         'sock_type'  => SWOOLE_SOCK_TCP,
         'keep_alive' => 30000,

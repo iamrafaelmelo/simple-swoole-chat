@@ -2,7 +2,8 @@
     "require": {
         "php": ">=8.1",
         "ext-swoole": "*",
-        "league/plates": "^3.4"
+        "league/plates": "^3.4",
+        "php-di/php-di": "^7.0"
     },
     "require-dev": {
         "swoole/ide-helper": "^5.0"

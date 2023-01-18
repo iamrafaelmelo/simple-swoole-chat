@@ -12,9 +12,10 @@ use Chat\Events\OnStart;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+$dependencies = require __DIR__ . '/../config/dependencies.php';
 $settings = require __DIR__ . '/../config/settings.php';
 
-$app = new App($settings);
+$app = new App($settings, $dependencies);
 $app->events([
     'managerStart' => OnManagerStart::class,
     'start'        => OnStart::class,

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Chat;
 
+use DI\ContainerBuilder;
 use InvalidArgumentException;
+use Psr\Container\ContainerInterface;
 use Swoole\WebSocket\Server;
 
 class App
@@ -13,17 +15,23 @@ class App
 
     private Server $server;
 
-    public function __construct(array $settings)
+    private static ContainerInterface $container;
+
+    public function __construct(array $settings, array $dependencies = [])
     {
         if (!$settings) {
             throw new InvalidArgumentException('Settings not found.');
         }
 
+        $builder = new ContainerBuilder();
+        $builder->addDefinitions($dependencies, ['settings' => $settings]);
+        self::$container = $builder->build();
+
         $this->server = new Server(
-            host: $settings['server']['host'],
-            port: $settings['server']['port'],
-            mode: $settings['server']['mode'],
-            sock_type: $settings['server']['sock_type']
+            host: self::$container->get('settings')['server']['host'],
+            port: (int) self::$container->get('settings')['server']['port'],
+            mode: self::$container->get('settings')['server']['mode'],
+            sock_type: self::$container->get('settings')['server']['sock_type']
         );
 
         $this->server->set($settings['server']['options']);
@@ -43,6 +51,11 @@ class App
             print("[Event]: {$handler}\n");
             $this->server->on($name, new $handler());
         }
+    }
+
+    public static function container(): ContainerInterface
+    {
+        return self::$container;
     }
 
     public function start(): void
