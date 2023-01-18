@@ -11,7 +11,7 @@ use Swoole\WebSocket\Server;
 
 class App
 {
-    public const VERSION = '0.7.1';
+    public const VERSION = '0.8.0';
 
     private Server $server;
 
