@@ -30,4 +30,4 @@ composer install
 > make server
 ```
 
-And open `public/index.html` file on browser.
+And access `http://localhost:8000` on your browser.
