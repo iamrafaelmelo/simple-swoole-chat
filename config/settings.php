@@ -21,6 +21,9 @@ return [
             'http_index_files' => ['index.php'],
         ],
     ],
+    'router' => [
+        'cacheFile' => dirname(__DIR__) . '/storage/cache/route.cache'
+    ],
     'views' => [
         'path' => dirname(__DIR__) . '/render',
     ],

@@ -11,13 +11,14 @@ use Swoole\WebSocket\Server;
 
 class App
 {
-    public const VERSION = '0.8.1';
+    public const VERSION = '0.9.0';
 
     private Server $server;
+    private static $routes;
 
     private static ContainerInterface $container;
 
-    public function __construct(array $settings, array $dependencies = [])
+    public function __construct(array $settings, callable $routes, array $dependencies = [])
     {
         if (!$settings) {
             throw new InvalidArgumentException('Settings not found.');
@@ -25,7 +26,9 @@ class App
 
         $builder = new ContainerBuilder();
         $builder->addDefinitions($dependencies, ['settings' => $settings]);
+
         self::$container = $builder->build();
+        self::$routes = $routes;
 
         $this->server = new Server(
             host: self::$container->get('settings')['server']['host'],
@@ -51,6 +54,11 @@ class App
             print("[Event]: {$handler}\n");
             $this->server->on($name, new $handler());
         }
+    }
+
+    public static function routes(): callable
+    {
+        return self::$routes;
     }
 
     public static function container(): ContainerInterface

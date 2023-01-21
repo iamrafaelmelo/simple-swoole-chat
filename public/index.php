@@ -14,8 +14,9 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $dependencies = require __DIR__ . '/../config/dependencies.php';
 $settings = require __DIR__ . '/../config/settings.php';
+$routes = require __DIR__ . '/../config/routes.php';
 
-$app = new App($settings, $dependencies);
+$app = new App($settings, $routes, $dependencies);
 $app->events([
     'managerStart' => OnManagerStart::class,
     'start'        => OnStart::class,
