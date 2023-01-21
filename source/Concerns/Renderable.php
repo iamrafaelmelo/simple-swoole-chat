@@ -2,6 +2,7 @@
 
 namespace Chat\Concerns;
 
+use Chat\App;
 use League\Plates\Engine;
 use League\Plates\Extension\Asset;
 use Swoole\Http\Response;
@@ -12,7 +13,7 @@ trait Renderable
 
     public function setup(): void
     {
-        $settings = require dirname(__DIR__) . '/../config/settings.php';
+        $settings = App::container()->get('settings');
 
         $this->engine = new Engine();
         $this->engine->setDirectory($settings['views']['path']);

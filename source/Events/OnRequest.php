@@ -36,7 +36,7 @@ class OnRequest
         switch ($router[0]) {
             case Dispatcher::NOT_FOUND:
                 $response->status(404);
-                $response->end('Not found');
+                $this->render($response, 'http/404');
                 break;
             case Dispatcher::METHOD_NOT_ALLOWED:
                 $response->status(405);

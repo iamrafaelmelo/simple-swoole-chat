@@ -11,10 +11,10 @@ use Swoole\WebSocket\Server;
 
 class App
 {
-    public const VERSION = '0.9.0';
+    public const VERSION = '0.10.0';
 
     private Server $server;
-    private static $routes;
+    private static mixed $routes;
 
     private static ContainerInterface $container;
 
