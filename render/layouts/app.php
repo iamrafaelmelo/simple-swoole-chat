@@ -5,6 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
+        <link href="<?php echo $this->asset('favicon.ico'); ?>" rel="icon" type="image/x-icon" />
         <title><?php echo $this->escape($title ?? 'App') ?></title>
         <style>
             * { font-family: 'Inter', sans-serif; }

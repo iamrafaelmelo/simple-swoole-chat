@@ -1,16 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Chat\Actions;
-use Chat\Concerns\Renderable;
-use Swoole\Http\Request;
-use Swoole\Http\Response;
 
-class HomeAction
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+
+class HomeAction extends Htmlable
 {
-    use Renderable;
-
-    public function __invoke(Request $request, Response $response): string
+    public function __invoke(Request $request, Response $response): Response
     {
-        return $this->render($response, 'home');
+        return $this->toHtml($response, 'home');
     }
 }

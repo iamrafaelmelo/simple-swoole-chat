@@ -1,8 +1,8 @@
 <?php
 
 use Chat\Actions\HomeAction;
-use FastRoute\RouteCollector;
+use Slim\App as Slim;
 
-return function (RouteCollector $route) {
+return function (Slim $route) {
     $route->get('/', HomeAction::class);
 };
