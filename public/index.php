@@ -7,7 +7,6 @@ use Chat\Events\OnClose;
 use Chat\Events\OnManagerStart;
 use Chat\Events\OnMessage;
 use Chat\Events\OnOpen;
-use Chat\Events\OnRequest;
 use Chat\Events\OnStart;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -22,7 +21,6 @@ $app->events([
     'start'        => OnStart::class,
     'open'         => OnOpen::class,
     'message'      => OnMessage::class,
-    'request'      => OnRequest::class,
     'close'        => OnClose::class,
 ]);
 
