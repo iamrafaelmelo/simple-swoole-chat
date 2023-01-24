@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chat\Actions;
+namespace App\Actions;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
