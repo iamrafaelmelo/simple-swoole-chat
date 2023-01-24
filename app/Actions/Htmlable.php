@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chat\Actions;
+namespace App\Actions;
 
 use League\Plates\Engine as Plates;
 use Psr\Http\Message\ResponseInterface as Response;

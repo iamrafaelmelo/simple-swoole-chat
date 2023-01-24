@@ -1,6 +1,6 @@
 <?php
 
-use Chat\Actions\HomeAction;
+use App\Actions\HomeAction;
 use Slim\App as Slim;
 
 return function (Slim $route) {
