@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use function DI\env;
-
 return [
     'app' => [
         'name' => 'Simple Swoole Chat',
@@ -23,7 +21,10 @@ return [
     ],
     'cache' => [
         'compilation' => dirname(__DIR__) . '/storage/cache/compilation',
-        'proxies' => dirname(__DIR__) . '/storage/cache/compilation/proxies',
+        'proxies' => dirname(__DIR__) . '/storage/cache/proxies',
+    ],
+    'routes' => [
+        'path' => __DIR__ . '/routes.php',
     ],
     'views' => [
         'path' => dirname(__DIR__) . '/render',

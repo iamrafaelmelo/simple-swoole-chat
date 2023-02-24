@@ -6,39 +6,41 @@ namespace Chat;
 
 use Chat\Renderers\Errors\HtmlErrorRenderer;
 use DI\ContainerBuilder;
-use Ilex\SwoolePsr7\SwooleResponseConverter;
+use Ilex\SwoolePsr7\SwooleResponseConverter as ResponseConverter;
 use Ilex\SwoolePsr7\SwooleServerRequestConverter as RequestConverter;
 use InvalidArgumentException;
-use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseInterface;
 use Slim\App as Slim;
 use Slim\Handlers\ErrorHandler;
+use Slim\Logger;
+use Swoole\Constant;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\WebSocket\Server;
 
 class App
 {
-    public const VERSION = '1.0.2';
+    public const VERSION = '1.1.0';
 
     private Server $server;
-    public Slim $slim;
+    private ContainerInterface $container;
+    private Slim $slim;
+    private Logger $logger;
 
-    public function __construct(array $settings, callable $routes, array $dependencies = [])
+    public function __construct(array $settings, array $dependencies = [])
     {
         if (!$settings) {
             throw new InvalidArgumentException('Settings not found.');
         }
 
-        $psr17Factory = new Psr17Factory();
-        $this->server = $this->initializeServer($settings);
-        $container = $this->buildContainer($dependencies, $settings);
+        $this->server = $this->configureServer($settings);
+        $this->container = $this->buildContainer($dependencies, $settings);
+        $this->slim = $this->container->get(Slim::class);
+        $this->logger = new Logger();
 
-        $slim = $this->initializeApp($psr17Factory, $container, $routes);
-        $this->configureErrorHandler($slim, $settings);
-
-        $request = $this->convertSwooleRequestToPsr7($psr17Factory);
-        $this->emitResponseToClient($slim, $request);
+        $this->configureAppErrorHandler($settings);
+        $this->sendResponseToClient();
     }
 
     public function events(array $events): void
@@ -52,7 +54,7 @@ class App
                 throw new InvalidArgumentException("Event handler class {$handler} not found.");
             }
 
-            print("[Event]: {$handler}\n");
+            $this->logger->debug("[EVENT]: {$handler}");
             $this->server->on($name, new $handler());
         }
     }
@@ -62,7 +64,7 @@ class App
         $this->server->start();
     }
 
-    private function initializeServer(array $settings): Server
+    private function configureServer(array $settings): Server
     {
         $server = new Server(
             host: $settings['server']['host'],
@@ -93,50 +95,40 @@ class App
         return $container->build();
     }
 
-    private function initializeApp(Psr17Factory $psr17Factory, ContainerInterface $container, callable $routes): Slim
+    private function configureAppErrorHandler(array $settings): void
     {
-        $app = new Slim($psr17Factory, $container);
-        $routes($app);
+        $errorHandler = new ErrorHandler(
+            callableResolver: $this->slim->getCallableResolver(),
+            responseFactory: $this->slim->getResponseFactory()
+        );
 
-        $app->addBodyParsingMiddleware();
-        $app->addRoutingMiddleware();
-
-        return $app;
-    }
-
-    private function configureErrorHandler(Slim $slim, array $settings): void
-    {
-        $errorHandler = new ErrorHandler($slim->getCallableResolver(), $slim->getResponseFactory());
         $errorHandler->registerErrorRenderer('text/html', HtmlErrorRenderer::class);
         $errorHandler->forceContentType('text/html');
 
-        $errorMiddleware = $slim->addErrorMiddleware(
+        $errorMiddleware = $this->slim->addErrorMiddleware(
             displayErrorDetails: $settings['app']['debug'] ?: false,
-            logErrors:  true,
+            logErrors: true,
             logErrorDetails: true
         );
 
         $errorMiddleware->setDefaultErrorHandler($errorHandler);
     }
 
-    private function convertSwooleRequestToPsr7(Psr17Factory $psr17Factory): RequestConverter
+    private function convertRequest(Request $swooleRequest): ResponseInterface
     {
-        return new RequestConverter(
-            serverRequestFactory: $psr17Factory,
-            uriFactory: $psr17Factory,
-            uploadedFileFactory: $psr17Factory,
-            streamFactory: $psr17Factory
-        );
+        /** @var RequestConverter $requestConverter */
+        $requestConverter = $this->container->get(RequestConverter::class);
+        $requestConverted = $requestConverter->createFromSwoole($swooleRequest);
+
+        return $this->slim->handle($requestConverted);
     }
 
-    private function emitResponseToClient(Slim $slim, RequestConverter $requestConverter): void
+    private function sendResponseToClient(): void
     {
-        $this->server->on('request', function (Request $request, Response $response) use ($requestConverter, $slim): void {
-            $psr7Request = $requestConverter->createFromSwoole($request);
-            $psr7Response = $slim->handle($psr7Request);
-            $responseConverter = new SwooleResponseConverter($response);
-
-            $responseConverter->send($psr7Response);
+        $this->server->on(Constant::EVENT_REQUEST, function (Request $request, Response $response): void {
+            $responseConverted = $this->convertRequest($request);
+            $responseConverter = new ResponseConverter($response);
+            $responseConverter->send($responseConverted);
         });
     }
 }

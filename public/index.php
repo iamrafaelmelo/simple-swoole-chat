@@ -8,20 +8,20 @@ use Chat\Events\OnManagerStart;
 use Chat\Events\OnMessage;
 use Chat\Events\OnOpen;
 use Chat\Events\OnStart;
+use Swoole\Constant;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $dependencies = require __DIR__ . '/../config/dependencies.php';
 $settings = require __DIR__ . '/../config/settings.php';
-$routes = require __DIR__ . '/../config/routes.php';
 
-$app = new App($settings, $routes, $dependencies);
+$app = new App($settings, $dependencies);
 $app->events([
-    'managerStart' => OnManagerStart::class,
-    'start'        => OnStart::class,
-    'open'         => OnOpen::class,
-    'message'      => OnMessage::class,
-    'close'        => OnClose::class,
+    Constant::EVENT_MANAGER_START => OnManagerStart::class,
+    Constant::EVENT_START         => OnStart::class,
+    Constant::EVENT_OPEN          => OnOpen::class,
+    Constant::EVENT_MESSAGE       => OnMessage::class,
+    Constant::EVENT_CLOSE         => OnClose::class,
 ]);
 
 $app->start();

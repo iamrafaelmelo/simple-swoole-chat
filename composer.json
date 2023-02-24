@@ -21,6 +21,7 @@
     "scripts": {
         "start": [
             "Composer\\Config::disableProcessTimeout",
+            "rm -rf storage/cache/compilation/CompiledContainer.php",
             "composer dump-autoload -o",
             "php public/index.php"
         ]
