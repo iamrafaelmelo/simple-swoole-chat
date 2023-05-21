@@ -1,9 +1,10 @@
 <?php
 
+use Chat\Env;
+
 return [
-    'name' => 'Simple Swoole Chat',
-    'env' => 'local',
-    'debug' => true,
-    'cache' => true,
-    'timezone' => 'UTC',
+    'name' => Env::get('APP_NAME', 'Chat'),
+    'env' => Env::get('APP_ENV', 'production'),
+    'debug' => Env::get('APP_DEBUG', false),
+    'timezone' => Env::get('APP_TIMEZONE', 'UTC'),
 ];
