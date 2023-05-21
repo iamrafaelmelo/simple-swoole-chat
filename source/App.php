@@ -7,6 +7,7 @@ namespace Chat;
 use Chat\Renderers\Errors\HtmlErrorRenderer;
 use DI\ContainerBuilder;
 use DirectoryIterator;
+use Dotenv\Dotenv;
 use Ilex\SwoolePsr7\SwooleResponseConverter as ResponseConverter;
 use Ilex\SwoolePsr7\SwooleServerRequestConverter as RequestConverter;
 use InvalidArgumentException;
@@ -22,7 +23,7 @@ use Swoole\WebSocket\Server;
 
 class App
 {
-    public const VERSION = '1.1.0';
+    public const VERSION = '1.3.0';
 
     private Server $server;
     private ContainerInterface $container;
@@ -31,6 +32,7 @@ class App
 
     public function __construct(array $dependencies = [])
     {
+        Dotenv::createImmutable(dirname(__DIR__))->safeLoad();
         $settings = $this->loadSettings();
 
         $this->server = $this->configureServer($settings);
@@ -97,7 +99,7 @@ class App
         $container = new ContainerBuilder();
         $container->useAutowiring(true);
 
-        if ($settings['app']['cache']) {
+        if ($settings['app']['env'] === Env::PRODUCTION) {
             $container->enableCompilation($settings['cache']['container']['compilation']);
             $container->writeProxiesToFile(true, $settings['cache']['container']['proxies']);
         }
