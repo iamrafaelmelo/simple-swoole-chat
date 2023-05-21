@@ -6,6 +6,7 @@ namespace Chat;
 
 use Chat\Renderers\Errors\HtmlErrorRenderer;
 use DI\ContainerBuilder;
+use DirectoryIterator;
 use Ilex\SwoolePsr7\SwooleResponseConverter as ResponseConverter;
 use Ilex\SwoolePsr7\SwooleServerRequestConverter as RequestConverter;
 use InvalidArgumentException;
@@ -28,11 +29,9 @@ class App
     private Slim $slim;
     private Logger $logger;
 
-    public function __construct(array $settings, array $dependencies = [])
+    public function __construct(array $dependencies = [])
     {
-        if (!$settings) {
-            throw new InvalidArgumentException('Settings not found.');
-        }
+        $settings = $this->loadSettings();
 
         $this->server = $this->configureServer($settings);
         $this->container = $this->buildContainer($dependencies, $settings);
@@ -64,6 +63,20 @@ class App
         $this->server->start();
     }
 
+    private function loadSettings(): array
+    {
+        $definitions = [];
+        $configurations = new DirectoryIterator(dirname(__DIR__) . '/config/autoload');
+
+        foreach ($configurations as $file) {
+            if ($file->isFile() && $file->getExtension() === 'php') {
+                $definitions[$file->getBasename('.php')] = require $file->getPathname();
+            }
+        }
+
+        return $definitions;
+    }
+
     private function configureServer(array $settings): Server
     {
         $server = new Server(
@@ -73,6 +86,7 @@ class App
             sock_type: $settings['server']['sock_type']
         );
 
+        $settings['server']['options']['document_root'] = $settings['view']['paths']['assets'];
         $server->set($settings['server']['options']);
 
         return $server;
@@ -84,13 +98,11 @@ class App
         $container->useAutowiring(true);
 
         if ($settings['app']['cache']) {
-            $container->enableCompilation($settings['cache']['compilation']);
-            $container->writeProxiesToFile(true, $settings['cache']['proxies']);
+            $container->enableCompilation($settings['cache']['container']['compilation']);
+            $container->writeProxiesToFile(true, $settings['cache']['container']['proxies']);
         }
 
-        $container->addDefinitions($dependencies, [
-            'settings' => $settings,
-        ]);
+        $container->addDefinitions($dependencies, $settings);
 
         return $container->build();
     }

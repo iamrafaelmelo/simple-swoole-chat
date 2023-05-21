@@ -11,7 +11,7 @@ use Slim\Factory\AppFactory;
 return [
     Slim::class => function (Container $container): Slim {
         $app = AppFactory::create(container: $container);
-        $routes = require $container->get('settings')['routes']['path'];
+        $routes = require __DIR__ . '/routes.php';
         $routes($app);
 
         $app->addBodyParsingMiddleware();
@@ -30,8 +30,8 @@ return [
         );
     },
     Plates::class => function (Container $container): Plates {
-        $publicPath = $container->get('settings')['server']['options']['document_root'];
-        $viewsPath = $container->get('settings')['views']['path'];
+        $publicPath = $container->get('view')['paths']['assets'];
+        $viewsPath = $container->get('view')['paths']['views'];
 
         $plates = new Plates();
         $plates->setDirectory($viewsPath);
