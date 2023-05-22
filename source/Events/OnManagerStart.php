@@ -8,9 +8,9 @@ use Swoole\WebSocket\Server;
 
 class OnManagerStart
 {
-    public function __invoke(Server $server, array $settings): void
+    public function __invoke(Server $server, array $definitions): void
     {
-        $server->tick($settings['server']['keep_alive'], function () use ($server) {
+        $server->tick($definitions['server']['keep_alive'], function () use ($server) {
             foreach ($server->connections as $connection) {
                 if ($server->isEstablished($connection)) {
                     $server->push($connection, 'ping', WEBSOCKET_OPCODE_PING);

@@ -23,24 +23,24 @@ use Swoole\WebSocket\Server;
 
 class App
 {
-    public const VERSION = '1.3.0';
+    public const VERSION = '1.4.0';
 
     private Server $server;
     private ContainerInterface $container;
     private Slim $slim;
     private Logger $logger;
 
-    public function __construct(array $dependencies = [])
+    public function __construct()
     {
         Dotenv::createImmutable(dirname(__DIR__))->safeLoad();
-        $settings = $this->loadSettings();
+        $definitions = $this->loadDefinitions();
 
-        $this->server = $this->configureServer($settings);
-        $this->container = $this->buildContainer($dependencies, $settings);
+        $this->server = $this->configureServer($definitions);
+        $this->container = $this->buildContainer($definitions);
         $this->slim = $this->container->get(Slim::class);
         $this->logger = new Logger();
 
-        $this->configureAppErrorHandler($settings);
+        $this->configureAppErrorHandler($definitions);
         $this->sendResponseToClient();
     }
 
@@ -65,51 +65,65 @@ class App
         $this->server->start();
     }
 
-    private function loadSettings(): array
+    private function loadDefinitions(): array
     {
-        $definitions = [];
-        $configurations = new DirectoryIterator(dirname(__DIR__) . '/config/autoload');
+        $definitions = [
+            'configurations' => [],
+            'dependencies' => [],
+        ];
 
-        foreach ($configurations as $file) {
-            if ($file->isFile() && $file->getExtension() === 'php') {
-                $definitions[$file->getBasename('.php')] = require $file->getPathname();
+        $files = new DirectoryIterator(dirname(__DIR__) . '/config/autoload');
+
+        foreach ($files as $file) {
+            $filename = $file->getBasename('.php');
+
+            if ($file->isDot() || $file->isDir()) {
+                continue;
             }
+
+            if ($filename !== 'dependencies') {
+                $definitions['configurations'][$filename] = require $file->getPathname();
+
+                continue;
+            }
+
+            $definitions['dependencies'] = require $file->getPathname();
         }
 
-        return $definitions;
+        return array_merge($definitions['configurations'], $definitions['dependencies']);
     }
 
-    private function configureServer(array $settings): Server
+    private function configureServer(array $definitions): Server
     {
         $server = new Server(
-            host: $settings['server']['host'],
-            port: (int) $settings['server']['port'],
-            mode: $settings['server']['mode'],
-            sock_type: $settings['server']['sock_type']
+            host: $definitions['server']['host'],
+            port: (int) $definitions['server']['port'],
+            mode: $definitions['server']['mode'],
+            sock_type: $definitions['server']['sock_type']
         );
 
-        $settings['server']['options']['document_root'] = $settings['view']['paths']['assets'];
-        $server->set($settings['server']['options']);
+        $definitions['server']['options']['document_root'] = $definitions['view']['paths']['assets'];
+        $server->set($definitions['server']['options']);
 
         return $server;
     }
 
-    private function buildContainer(array $dependencies, array $settings): ContainerInterface
+    private function buildContainer(array $definitions): ContainerInterface
     {
         $container = new ContainerBuilder();
         $container->useAutowiring(true);
 
-        if ($settings['app']['env'] === Env::PRODUCTION) {
-            $container->enableCompilation($settings['cache']['container']['compilation']);
-            $container->writeProxiesToFile(true, $settings['cache']['container']['proxies']);
+        if ($definitions['app']['env'] === Env::PRODUCTION) {
+            $container->enableCompilation($definitions['cache']['container']['compilation']);
+            $container->writeProxiesToFile(true, $definitions['cache']['container']['proxies']);
         }
 
-        $container->addDefinitions($dependencies, $settings);
+        $container->addDefinitions($definitions);
 
         return $container->build();
     }
 
-    private function configureAppErrorHandler(array $settings): void
+    private function configureAppErrorHandler(array $definitions): void
     {
         $errorHandler = new ErrorHandler(
             callableResolver: $this->slim->getCallableResolver(),
@@ -120,7 +134,7 @@ class App
         $errorHandler->forceContentType('text/html');
 
         $errorMiddleware = $this->slim->addErrorMiddleware(
-            displayErrorDetails: $settings['app']['debug'] ?: false,
+            displayErrorDetails: $definitions['app']['debug'] ?: false,
             logErrors: true,
             logErrorDetails: true
         );
