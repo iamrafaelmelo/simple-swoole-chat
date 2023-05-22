@@ -12,9 +12,7 @@ use Swoole\Constant;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$dependencies = require __DIR__ . '/../config/dependencies.php';
-
-$app = new App($dependencies);
+$app = new App();
 $app->events([
     Constant::EVENT_MANAGER_START => OnManagerStart::class,
     Constant::EVENT_START => OnStart::class,
