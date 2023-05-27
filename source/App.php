@@ -26,7 +26,7 @@ class App
     public const VERSION = '1.4.0';
 
     private Server $server;
-    private ContainerInterface $container;
+    private static ContainerInterface $container;
     private Slim $slim;
     private Logger $logger;
 
@@ -36,8 +36,9 @@ class App
         $definitions = $this->loadDefinitions();
 
         $this->server = $this->configureServer($definitions);
-        $this->container = $this->buildContainer($definitions);
-        $this->slim = $this->container->get(Slim::class);
+        self::$container = $this->buildContainer($definitions);
+        $this->slim = self::$container->get(Slim::class);
+        $this->loadRoutes();
         $this->logger = new Logger();
 
         $this->configureAppErrorHandler($definitions);
@@ -65,6 +66,11 @@ class App
         $this->server->start();
     }
 
+    public static function getContainer(): ContainerInterface
+    {
+        return self::$container;
+    }
+
     private function loadDefinitions(): array
     {
         $definitions = [
@@ -72,7 +78,7 @@ class App
             'dependencies' => [],
         ];
 
-        $files = new DirectoryIterator(dirname(__DIR__) . '/config/autoload');
+        $files = new DirectoryIterator(dirname(__DIR__) . '/config');
 
         foreach ($files as $file) {
             $filename = $file->getBasename('.php');
@@ -91,6 +97,19 @@ class App
         }
 
         return array_merge($definitions['configurations'], $definitions['dependencies']);
+    }
+
+    private function loadRoutes(): void
+    {
+        $files = new DirectoryIterator(dirname(__DIR__) . '/routes');
+
+        foreach ($files as $file) {
+            $filename = $file->getBasename('.php');
+
+            if (!$file->isDot() || !$file->isDir()) {
+                require $file->getPathname();
+            }
+        }
     }
 
     private function configureServer(array $definitions): Server
@@ -145,7 +164,7 @@ class App
     private function convertRequest(Request $swooleRequest): ResponseInterface
     {
         /** @var RequestConverter $requestConverter */
-        $requestConverter = $this->container->get(RequestConverter::class);
+        $requestConverter = self::$container->get(RequestConverter::class);
         $requestConverted = $requestConverter->createFromSwoole($swooleRequest);
 
         return $this->slim->handle($requestConverted);

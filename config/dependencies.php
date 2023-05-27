@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Ilex\SwoolePsr7\SwooleServerRequestConverter as RequestConverter;
 use League\Plates\Engine as Plates;
 use League\Plates\Extension\Asset;
@@ -11,9 +13,6 @@ use Slim\Factory\AppFactory;
 return [
     Slim::class => function (Container $container): Slim {
         $app = AppFactory::create(container: $container);
-        $routes = require __DIR__ . '/../routes.php';
-        $routes($app);
-
         $app->addBodyParsingMiddleware();
         $app->addRoutingMiddleware();
 
