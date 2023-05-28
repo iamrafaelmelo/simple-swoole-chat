@@ -7,7 +7,7 @@ namespace App\Actions;
 use League\Plates\Engine as Plates;
 use Psr\Http\Message\ResponseInterface as Response;
 
-abstract class Htmlable
+trait Htmlable
 {
     public function __construct(
         private readonly Plates $plates
