@@ -44,9 +44,15 @@ class Route
         return self::createRoute('ANY', $pattern, $callable);
     }
 
+    public static function group(string $pattern, callable $callable): void
+    {
+        $app = App::getSlimInstance();
+        $app->group($pattern, $callable);
+    }
+
     private static function createRoute(string $method, string $pattern, $callable): RouteInterface
     {
-        $app = App::getContainer()->get(Slim::class);
+        $app = App::getSlimInstance();
         $route = $app->map([$method], $pattern, $callable);
 
         return $route;
