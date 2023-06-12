@@ -71,6 +71,11 @@ class App
         return self::$container;
     }
 
+    public static function getSlimInstance(): Slim
+    {
+        return App::getContainer()->get(Slim::class);
+    }
+
     private function loadDefinitions(): array
     {
         $definitions = [
